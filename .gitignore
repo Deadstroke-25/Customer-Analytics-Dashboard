@@ -1,0 +1,101 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Testing
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.pytest_cache/
+.pytest/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================================================
+# Database — NEVER commit the generated SQLite file
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# Next.js / Node
+# ============================================================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ============================================================
+# Data & Reports  (raw CSV is fine to keep; processed is not)
+# ============================================================
+data/processed/
+reports/figures/*.png
+
+# ============================================================
+# Logs & OS
+# ============================================================
+logs/
+*.log
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
