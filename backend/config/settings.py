@@ -27,7 +27,10 @@ class Settings(BaseSettings):
     OUTLIER_IQR_THRESHOLD: float = 1.5
     
     # CORS Origins
-    CORS_ORIGINS: list = ["*"]
+    CORS_ORIGINS: list = [
+        "https://customer-analytics-dashboard-steel.vercel.app",
+        "http://localhost:3000",
+    ]
 
     class Config:
         env_file = ".env"
