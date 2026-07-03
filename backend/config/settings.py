@@ -1,6 +1,5 @@
 import os
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 class Settings(BaseSettings):
     # App General Settings
@@ -16,7 +15,6 @@ class Settings(BaseSettings):
     PROCESSED_DATA_PATH: str = os.path.join(DATA_DIR, "processed", "customer_shopping_behavior_engineered.csv")
     
     # Database Settings
-    # Default to local sqlite database in the backend/ directory
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
         f"sqlite:///{os.path.join(PROJECT_ROOT, 'backend', 'customer_pulse.db')}"
@@ -26,11 +24,12 @@ class Settings(BaseSettings):
     RANDOM_STATE: int = 42
     OUTLIER_IQR_THRESHOLD: float = 1.5
     
-    # CORS Origins
-    CORS_ORIGINS: list = [
-        "https://customer-analytics-dashboard-steel.vercel.app",
-        "http://localhost:3000",
-    ]
+    # CORS Origins — read from env var as comma-separated string
+    # e.g. CORS_ORIGINS="https://your-app.vercel.app,http://localhost:3000"
+    @property
+    def cors_origins(self) -> list:
+        raw = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+        return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
     class Config:
         env_file = ".env"
