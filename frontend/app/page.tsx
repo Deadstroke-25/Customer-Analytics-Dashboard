@@ -85,7 +85,7 @@ export default function LandingPage() {
             <a href="#tech" className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">Tech Stack</a>
             <a href="#workflow" className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">Workflow</a>
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <Link 
               href="/dashboard" 
               className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-xs hover:shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all gap-1.5"
