@@ -19,6 +19,11 @@ interface OutlierData {
   outlier_count: number;
   lower_bound: number;
   upper_bound: number;
+  q1: number;
+  q3: number;
+  median: number;
+  min: number;
+  max: number;
   total_records: number;
 }
 
@@ -30,6 +35,11 @@ export default function AdvancedAnalyticsPage() {
     outlier_count: 0,
     lower_bound: 0,
     upper_bound: 0,
+    q1: 0,
+    q3: 0,
+    median: 0,
+    min: 0,
+    max: 0,
     total_records: 0
   });
   const [correlation, setCorrelation] = useState<Record<string, Record<string, number>>>({});
@@ -186,29 +196,115 @@ export default function AdvancedAnalyticsPage() {
           </div>
           
           {loading ? (
-            <div className="space-y-3 animate-pulse">
-              <div className="bg-slate-50 h-16 rounded-lg"></div>
-              <div className="bg-slate-50 h-16 rounded-lg"></div>
-              <div className="bg-slate-50 h-16 rounded-lg"></div>
+            <div className="space-y-4 animate-pulse">
+              <div className="bg-slate-50 h-36 rounded-lg"></div>
+              <div className="bg-slate-50 h-28 rounded-lg"></div>
             </div>
           ) : (
-            <div className="flex flex-col gap-3 text-xs">
-              <div className="bg-slate-50 border border-slate-100 rounded-lg p-4">
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Outliers Detected</span>
-                <span className="block text-xl font-bold text-slate-950 mt-1">{outliers.outlier_count} records</span>
-                <span className="block text-[10px] text-slate-400 mt-0.5">Purchase records exceeding boundaries</span>
+            <div className="flex flex-col gap-4">
+              {/* Box Plot Visualizer */}
+              <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  Box & Whisker Plot ({outliers.column})
+                </span>
+                
+                {/* SVG Box Plot */}
+                <div className="relative w-full h-32 flex items-center justify-center">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 400 120">
+                    <defs>
+                      <linearGradient id="boxGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#93c5fd" />
+                        <stop offset="100%" stopColor="#3b82f6" />
+                      </linearGradient>
+                    </defs>
+                    
+                    {(() => {
+                      const scaleMin = Math.min(outliers.min, outliers.lower_bound, 0);
+                      const scaleMax = Math.max(outliers.max, outliers.upper_bound);
+                      const range = scaleMax - scaleMin || 1;
+                      
+                      // Map values to coordinates inside the 25-375 x-span
+                      const getX = (val: number) => 25 + ((val - scaleMin) / range) * 350;
+                      
+                      const xMin = getX(outliers.min);
+                      const xMax = getX(outliers.max);
+                      const xQ1 = getX(outliers.q1);
+                      const xQ3 = getX(outliers.q3);
+                      const xMedian = getX(outliers.median);
+                      const xLb = getX(outliers.lower_bound);
+                      const xUb = getX(outliers.upper_bound);
+                      
+                      return (
+                        <>
+                          {/* Main Axis Line */}
+                          <line x1="25" y1="60" x2="375" y2="60" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="3 3" />
+                          
+                          {/* Fences / Bounds (Dashed Red Lines) */}
+                          <line x1={xLb} y1="15" x2={xLb} y2="105" stroke="#f43f5e" strokeWidth="1.5" strokeDasharray="4 4" />
+                          <line x1={xUb} y1="15" x2={xUb} y2="105" stroke="#f43f5e" strokeWidth="1.5" strokeDasharray="4 4" />
+                          
+                          {/* Fence Labels */}
+                          <text x={xLb + 5} y="16" fill="#e11d48" fontSize="8" fontWeight="bold" textAnchor="start">Lower Boundary</text>
+                          <text x={xUb - 5} y="16" fill="#e11d48" fontSize="8" fontWeight="bold" textAnchor="end">Upper Boundary</text>
+                          
+                          {/* Whiskers (Range) */}
+                          <line x1={xMin} y1="60" x2={xQ1} y2="60" stroke="#64748b" strokeWidth="2" />
+                          <line x1={xQ3} y1="60" x2={xMax} y2="60" stroke="#64748b" strokeWidth="2" />
+                          
+                          {/* Whisker End Caps */}
+                          <line x1={xMin} y1="48" x2={xMin} y2="72" stroke="#64748b" strokeWidth="2" />
+                          <line x1={xMax} y1="48" x2={xMax} y2="72" stroke="#64748b" strokeWidth="2" />
+                          
+                          {/* Box (IQR) */}
+                          <rect 
+                            x={xQ1} 
+                            y="40" 
+                            width={Math.max(xQ3 - xQ1, 2)} 
+                            height="40" 
+                            fill="url(#boxGrad)" 
+                            stroke="#2563eb" 
+                            strokeWidth="2"
+                            rx="2"
+                          />
+                          
+                          {/* Median Line */}
+                          <line x1={xMedian} y1="40" x2={xMedian} y2="80" stroke="#1d4ed8" strokeWidth="3" />
+                          
+                          {/* Value Labels under the ticks */}
+                          <text x={xMin} y="85" fill="#475569" fontSize="8" textAnchor="middle">${outliers.min}</text>
+                          <text x={xMax} y="85" fill="#475569" fontSize="8" textAnchor="middle">${outliers.max}</text>
+                          <text x={xQ1} y="34" fill="#2563eb" fontSize="8" fontWeight="semibold" textAnchor="middle">${outliers.q1}</text>
+                          <text x={xQ3} y="34" fill="#2563eb" fontSize="8" fontWeight="semibold" textAnchor="middle">${outliers.q3}</text>
+                          <text x={xMedian} y="94" fill="#1d4ed8" fontSize="9" fontWeight="bold" textAnchor="middle">${outliers.median}</text>
+                          
+                          {/* Value Labels for Fences */}
+                          <text x={xLb + 5} y="112" fill="#be123c" fontSize="8" textAnchor="start">${outliers.lower_bound}</text>
+                          <text x={xUb - 5} y="112" fill="#be123c" fontSize="8" textAnchor="end">${outliers.upper_bound}</text>
+                        </>
+                      );
+                    })()}
+                  </svg>
+                </div>
               </div>
               
-              <div className="bg-slate-50 border border-slate-100 rounded-lg p-4">
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lower boundary</span>
-                <span className="block text-xl font-bold text-slate-950 mt-1">${outliers.lower_bound}</span>
-                <span className="block text-[10px] text-slate-400 mt-0.5">Q1 - (1.5 * IQR)</span>
-              </div>
-              
-              <div className="bg-slate-50 border border-slate-100 rounded-lg p-4">
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Upper boundary</span>
-                <span className="block text-xl font-bold text-slate-950 mt-1">${outliers.upper_bound}</span>
-                <span className="block text-[10px] text-slate-400 mt-0.5">Q3 + (1.5 * IQR)</span>
+              {/* Detailed Summary Grid */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Outliers Detected</span>
+                  <span className="block text-sm font-black text-slate-900 mt-0.5">{outliers.outlier_count} records</span>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">IQR (Dispersion)</span>
+                  <span className="block text-sm font-black text-slate-900 mt-0.5">${(outliers.q3 - outliers.q1).toFixed(2)}</span>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Lower Boundary</span>
+                  <span className="block text-sm font-bold text-rose-600 mt-0.5">${outliers.lower_bound}</span>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Upper Boundary</span>
+                  <span className="block text-sm font-bold text-rose-600 mt-0.5">${outliers.upper_bound}</span>
+                </div>
               </div>
             </div>
           )}

@@ -81,11 +81,22 @@ def get_outliers(
             
         outliers, lb, ub = detect_outliers_iqr(df, column)
         
+        q1 = float(df[column].quantile(0.25))
+        q3 = float(df[column].quantile(0.75))
+        median = float(df[column].median())
+        min_val = float(df[column].min())
+        max_val = float(df[column].max())
+        
         return {
             "column": column,
             "outlier_count": len(outliers),
             "lower_bound": round(float(lb), 2),
             "upper_bound": round(float(ub), 2),
+            "q1": round(q1, 2),
+            "q3": round(q3, 2),
+            "median": round(median, 2),
+            "min": round(min_val, 2),
+            "max": round(max_val, 2),
             "total_records": len(df)
         }
     except Exception as e:
