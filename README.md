@@ -2,8 +2,6 @@
 
 A full-stack customer intelligence platform built with **Next.js 15**, **FastAPI**, and **SQLite**. Transforms raw retail transaction data into an interactive business intelligence dashboard with RFM segmentation, sales forecasting, correlation analysis, and outlier detection.
 
-> 🎓 Built as a final-year data analytics portfolio project by **Suprojeet Sonar**
-
 ---
 
 ## 🖥️ Live Pages
